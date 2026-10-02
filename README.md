@@ -15,7 +15,7 @@ The 3D models are still a work in progress and will at some point be shared in a
 - **Jetson Orin Nano**: AI processing, SLAM, etc. ZeroMQ with multiple services
 - **OAK-D Pro W**: Stereo Camera with Computer vision AI models on board 
 - **ODrive S1**: Brushless motor controllers with encoders
-- **Dual IMU Setup**: ICM20948 (balance & collision detection) + Built-in OAK-D IMU (navigation)
+- **Dual IMU Setup**: ISM330DHCX (balance & collision detection) + Built-in OAK-D IMU (navigation)
 - **ToF Sensors**: VL53L4CX ToF sensors for obstacle detection
 - **Seeed Studios ReSpeaker 4 Mic Array**: Voice recognition and direction
 - **Visaton FR58 Speaker Driver with Amp**: Makes noise

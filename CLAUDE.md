@@ -27,7 +27,7 @@ Instinctus runs on a Teensy 4.1 (single core). The earlier Arduino GIGA R1 WiFi 
 - **Connectivity**: 8 serial, 3 SPI, 3 I2C ports, 3 CAN Bus (1 with CAN FD)
 
 **Sensors:**
-- ICM20948 9-axis IMU (SPI0 - The first SPI port features a FIFO for higher sustained speed transfers.) - Balance sensing and collision detection
+- ISM330DHCX 6-axis IMU (Adafruit breakout, mounted near the wheel axis) on SPI0 (the first SPI port has a FIFO for higher sustained transfer rates) - Balance sensing and collision detection
 - 2x VL53L4CX ToF sensors (I2C, rear 0x30 / front 0x29) - Obstacle detection
   - Both on same bus, differentiated via XSHUT pins
   - On boot: both XSHUT LOW, then rear brought up and reprogrammed to 0x30, then front brought up at default 0x29
@@ -119,7 +119,7 @@ Instinctus runs on a Teensy 4.1 (single core). The earlier Arduino GIGA R1 WiFi 
 
 - [Teensy 4.1](https://www.pjrc.com/store/teensy41.html)
 - [ODrive CAN Protocol](https://docs.odriverobotics.com/v/latest/can-protocol.html)
-- [ICM20948 Datasheet](https://invensense.tdk.com/products/motion-tracking/9-axis/icm-20948/)
+- [ISM330DHCX](https://www.st.com/en/mems-and-sensors/ism330dhcx.html)
 
 ## Notes
 
