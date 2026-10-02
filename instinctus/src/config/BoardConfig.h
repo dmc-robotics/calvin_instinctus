@@ -1,15 +1,18 @@
-#ifndef BOARD_CONFIG_H
-#define BOARD_CONFIG_H
+#pragma once
 
 #include <stdint.h>
 
-// Arduino Giga R1 WiFi board-level configuration.
-// Built-in LEDs (LEDR, LEDG, LEDB) are active-low on this board.
+// Teensy 4.1 board-level configuration.
+
+// Jetson serial port — Serial1 is a HardwareSerial object, not a constexpr value
+#define JETSON_SERIAL Serial1
 
 namespace Config {
-    constexpr uint32_t SERIAL_BAUD_RATE = 115200;
-    constexpr uint16_t USB_ENUM_DELAY_MS = 150;
-    constexpr uint32_t CAN_BUS_SPEED = 250000;
-}
+    // USB debug serial
+    constexpr uint32_t USB_BAUD_RATE         = 115200;
+    constexpr uint16_t USB_SERIAL_TIMEOUT_MS = 3000;
 
-#endif // BOARD_CONFIG_H
+    // Jetson serial
+    constexpr uint32_t JETSON_BAUD_RATE = 1000000;
+
+}

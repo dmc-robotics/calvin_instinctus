@@ -23,7 +23,7 @@ Thumbs.db
 *.a
 *.d
 
-# Arduino Build Directories
+# Build Directories
 build/
 .build/
 __vm/
