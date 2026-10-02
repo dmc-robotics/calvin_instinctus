@@ -1,21 +1,23 @@
 # Calvin Instinctus - Project Instructions
 
-## IMPORTANT:##
-The current sate of the code is that the instinctus_m4 firectory is legacy code from the Arduino. The current task is to build up a Teensy 4.1 architecture using similar concepts, but adapted to the single core. the arduino code is just a reference, and should not be used a 1 to 1 template for the Teensy 4.1 code.
+## IMPORTANT:
+Instinctus runs on a Teensy 4.1 (single core). The earlier Arduino GIGA R1 WiFi code (`instinctus_m4/`) was removed on 2026-10-01; it's only in git history (last GIGA commit `41a228a`) and isn't a reference for new code.
+
 
 ## System Overview
 
-**Calvin Instinctus** is the low-level reflex and motor control system for Calvin, a self-balancing robot. Running on an Arduino Giga R1 WiFi (dual-core ARM), it handles real-time balance control, motor actuation, and safety monitoring.
+**Calvin Instinctus** is the low-level reflex and motor control system for Calvin, a self-balancing robot. Running on a Teensy 4.1, it handles real-time balance control, motor actuation, and safety monitoring.
 
 **Calvin's Three-System Architecture:**
 - **instinctus** (THIS SYSTEM) - Reflexive motor control and balance
-- **cogitator** - High-level AI and planning (Jetson Orin Nano) - `/Users/damoncali/code/calvin_cogitator/CLAUDE.md`
-- **explorator** - Human monitoring interface (Electron app) - `/Users/damoncali/code/calvin_explorator/CLAUDE.md`
+- **cogitator** - High-level AI and planning (Jetson Orin Nano) - `/Users/damoncali/code/robotics/calvin/calvin_cogitator/CLAUDE.md`
+- **explorator** - Human monitoring interface (native macOS app) - `/Users/damoncali/code/robotics/calvin/calvin_explorator/CLAUDE.md`
 
 **Integration:**
-- Sends status updates to cogitator via serial (M7 core)
-- Receives commands from cogitator via serial (M7 core)
+- Sends status updates to cogitator via serial
+- Receives commands from cogitator via serial
 - Status data flows through cogitator to explorator for visualization
+
 
 ## Hardware Platform
 
@@ -25,21 +27,21 @@ The current sate of the code is that the instinctus_m4 firectory is legacy code 
 - **Connectivity**: 8 serial, 3 SPI, 3 I2C ports, 3 CAN Bus (1 with CAN FD)
 
 **Sensors:**
-- ICM20948 9-axis IMU (I2C Wire, 0x69) - Balance sensing and collision detection
-- 2x VL53L4CX ToF sensors (I2C Wire, rear 0x30 / front 0x29) - Obstacle detection
-  - Both on same bus (Wire), differentiated via XSHUT pins (rear=D31, front=D32)
+- ICM20948 9-axis IMU (SPI0 - The first SPI port features a FIFO for higher sustained speed transfers.) - Balance sensing and collision detection
+- 2x VL53L4CX ToF sensors (I2C, rear 0x30 / front 0x29) - Obstacle detection
+  - Both on same bus, differentiated via XSHUT pins
   - On boot: both XSHUT LOW, then rear brought up and reprogrammed to 0x30, then front brought up at default 0x29
   - XSHUT ensures clean power cycle on every MCU reset
 - Battery monitor (specific model TBD)
 
 **Actuators:**
-- 2x ODrive S1 motor controllers (CAN @ 250kbps, IDs 0x01/0x02)
+- 2x ODrive S1 motor controllers, one CAN bus each at 1 Mbit/s: CAN1 (pins 22/23) and CAN3 (pins 30/31), via Adafruit CAN Pal (TJA1051T/3) transceivers. CAN2 is unusable because its pins 0/1 are Serial1 (Jetson)
 - 2x Odrive Dual Shaft Motor - D5312s 330KV
 
-## Architecture: Dual-Core Responsibilities
 
-### High Priority Tasks - CRITICAL TIMING
+## Architecture
 
+### High Priority Tasks
 **Tasks:**
 1. **Balance Control** - Read IMU, run complementary filter, calculate tilt
 2. **Motor Control** - Generate velocity commands, send CAN messages to ODrives
@@ -51,38 +53,37 @@ The current sate of the code is that the instinctus_m4 firectory is legacy code 
 ### Low Priortiy Tasks - Communication Hub
 
 **Tasks:**
-1. **Jetson Bridge** - Forward events to Jetson, route commands to M4
+1. **Jetson Bridge** - Forward events to Jetson
 
 
 ## Communication Protocols
 
-### M7 ↔ Jetson (Serial)
+### Teensy ↔ Jetson (Serial)
 
-**Protocol:** Newline-delimited JSON (defined by cogitator), details TBD
-**Physical:** Serial1/2/3 (TBD) at 115200 baud
+**Protocol:** Newline-delimited JSON — see `/Users/damoncali/code/robotics/calvin/calvin_cogitator/PROTOCOL.md`
+**Physical:** Serial1 at 1,000,000 baud
 
 
 ## Build and Upload
-- This project uses the **Grot** tool (~/code/gems/grot) for building and uploading Arduino sketches.
-- `Users/damoncali/code/gems/grot`
-- .grotconfig files specify board settings, target core, port, and memory allocation.
-- Grot is not yet capable of working with the Teensy 4.1
+- This project uses the **Grot** tool (`/Users/damoncali/code/robotics/grot`, installed as the `grot` gem) for building and uploading Arduino sketches.
+- .grotconfig files specify board settings and port.
+
 
 ## Integration Points
 
 ### With Cogitator (Jetson Orin Nano, Python)
-**Documentation:** `/Users/damoncali/code/calvin_cogitator/CLAUDE.md`
+**Documentation:** `/Users/damoncali/code/robotics/calvin/calvin_cogitator/CLAUDE.md`
 
-**Interface:** Serial communication (NOT IMPLEMENTED)
+**Interface:** Serial communication — protocol defined in `/Users/damoncali/code/robotics/calvin/calvin_cogitator/PROTOCOL.md`
 **Data Flow:**
-- M7 sends: TBD
-- M7 receives: TBD
+- Sends: `telemetry`, `tof`, `event`, `log`, `ack` messages
+- Receives: `command`, `config`, `ping` messages
 
-### With Explorator (Electron/Vue.js)
-**Documentation:** `/Users/damoncali/code/calvin_explorator/CLAUDE.md`
+### With Explorator (macOS app)
+**Documentation:** `/Users/damoncali/code/robotics/calvin/calvin_explorator/CLAUDE.md`
 
 **Interface:** Indirect via Jetson (no direct connection)
-**Data Flow:** M4 → M7 → Jetson → Explorator
+**Data Flow:** Teensy → Jetson → Explorator
 
 **Telemetry Provided:**
 - Balance status (tilt angle, velocity)
@@ -101,7 +102,7 @@ The current sate of the code is that the instinctus_m4 firectory is legacy code 
 - Warning when too close to objects (detected by ToF sensors)
 - Corrective action when collision detected (TBD).  
 
-**Battery Protection:** (TODO) Critical voltage warning and shutdown at appropriate voltages (3S LiPo)
+**Battery Protection:** (TODO) Critical voltage warning and shutdown at appropriate voltages (4S LiPo)
 
 **Safe State:** Motors stop, balance continues, warning displayed, alert sent
 
@@ -116,11 +117,11 @@ The current sate of the code is that the instinctus_m4 firectory is legacy code 
 
 ## Resources
 
-- [Arduino Giga R1 Docs](https://docs.arduino.cc/hardware/giga-r1-wifi/)
+- [Teensy 4.1](https://www.pjrc.com/store/teensy41.html)
 - [ODrive CAN Protocol](https://docs.odriverobotics.com/v/latest/can-protocol.html)
 - [ICM20948 Datasheet](https://invensense.tdk.com/products/motion-tracking/9-axis/icm-20948/)
 
 ## Notes
 
-- **Timing is critical** - M4 must maintain sufficient loop timing for stable balance
-- **Never block on critical tasks** - No Serial.print, no delays >1ms (excepting debugging)
+- **Timing is critical** - Teensy must maintain sufficient loop timing for stable balance - targeting 1,000 Hz
+- **Never block on critical tasks**
