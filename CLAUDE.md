@@ -1,6 +1,6 @@
 # Calvin Instinctus
 
-Big picture (systems, wiring, control architecture, working rules): see `../CLAUDE.md`.
+Calvin is a robotics project contained in `~/code/robotics/calvin/`. See `~/code/robotics/calvin/CLAUDE.md` for project level information. This file is for `calvin_instinctus` infromation only.
 
 Real-time firmware for Calvin's Teensy 4.1: balance control, motor control over CAN, and safety. Single core.
 
@@ -44,11 +44,6 @@ No IMU, ToF, CAN or balance code yet. The next firmware work is `InstinctusCore`
 ## Build
 
 `cd instinctus && grot build && grot load` (Teensy 4.1, `teensy:avr:teensy41`). The `.grotconfig` (gitignored) holds the port.
-
-## Code style
-
-- Classes `PascalCase` (`BalanceIMU`), methods `camelCase`, constants `UPPER_SNAKE_CASE`, private members `_camelCase`.
-- SI units internally (rad, rad/s, N·m); degrees only in human-facing telemetry.
 
 ## Resources
 
